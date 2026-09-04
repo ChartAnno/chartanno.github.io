@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChartAnno: Evaluating MLLMs for Chart Annotation Generation</title>
+  <meta name="description" content="ChartAnno is a benchmark of 1,200 real-world charts and 3,600 instructions for evaluating multimodal large language models on chart annotation generation.">
+  <link rel="icon" href="assets/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ===================== Title ===================== -->
+  <header class="title-block">
+    <h1 class="paper-title">ChartAnno: Evaluating MLLMs for Chart Annotation Generation</h1>
+
+    <p class="authors">
+      <span class="author-row"><span><a href="https://orcid.org/0009-0007-1607-4732" target="_blank" rel="noopener">Zhenghan&nbsp;Chen</a><sup class="eq">*1</sup></span><span><a href="https://zekaishao25.github.io" target="_blank" rel="noopener">Zekai&nbsp;Shao</a><sup class="eq">*1</sup></span><span>Lidan&nbsp;Tan<sup>1</sup></span><span>Xin&nbsp;Lin<sup>2</sup></span><span>Xingchen&nbsp;Zeng<sup>3</sup></span><span>Yi&nbsp;Shan<sup>1</sup></span><span>Ziyue&nbsp;Lin<sup>1</sup></span></span>
+      <span class="author-row"><span>Xiaoliang&nbsp;Fu<sup>1</sup></span><span>Xinyuan&nbsp;Liu<sup>1</sup></span><span>Yuetong&nbsp;Guo<sup>1</sup></span><span>Fen&nbsp;Wang<sup>1</sup></span><span><a href="https://www.bongshiny.com/" target="_blank" rel="noopener">Bongshin&nbsp;Lee</a><sup class="eq">†4</sup></span><span><a href="http://simingchen.me" target="_blank" rel="noopener">Siming&nbsp;Chen</a><sup class="eq">†1</sup></span></span>
+    </p>
+    <p class="affiliations">
+      <sup>1</sup>Fudan University&ensp;<sup>2</sup>Sun Yat-sen University&ensp;<sup>3</sup>HKUST (Guangzhou)&ensp;<sup>4</sup>Yonsei University
+    </p>
+    <p class="affiliations note"><sup>*</sup>Equal contribution&ensp;<sup>†</sup>Co-corresponding authors</p>
+
+    <nav class="link-row">
+      <a class="pill" href="https://arxiv.org/abs/2608.03464" target="_blank" rel="noopener">[ arXiv ]</a>
+      <a class="pill" href="https://arxiv.org/pdf/2608.03464" target="_blank" rel="noopener">[ Paper ]</a>
+      <a class="pill" href="https://github.com/ChartAnno/ChartAnno" target="_blank" rel="noopener">[ Code ]</a>
+      <a class="pill" href="https://huggingface.co/datasets/chartanno/ChartAnno" target="_blank" rel="noopener">[ Dataset ]</a>
+    </nav>
+  </header>
+
+  <!-- ===================== Teaser ===================== -->
+  <figure class="fig">
+    <img src="assets/academic_motivation.png" alt="Real-world annotated charts: arrows, highlights, and text labels explain data, emphasize key findings, and guide attention, motivating MLLM-assisted annotation authoring.">
+    <figcaption>
+      <b>Figure 1.</b> Motivating example of chart annotation generation. Given an existing chart and an annotation instruction,
+      an MLLM generates executable code to add annotations that communicate the intended message.
+    </figcaption>
+  </figure>
+
+  <!-- ===================== Abstract ===================== -->
+  <section class="sec">
+    <h2>Abstract</h2>
+    <p>
+      Annotations are essential to communicative visualization, helping explain data, emphasize key findings, and
+      guide attention. While multimodal large language models (MLLMs) offer new opportunities for automatic chart
+      annotation authoring, their capabilities in this task remain underexplored. To address this gap, we introduce
+      <b>ChartAnno</b>, a comprehensive benchmark for evaluating MLLMs on chart annotation generation.
+      <b>ChartAnno</b> contains <b>1,200 real-world charts</b> with paired annotated and unannotated executable code,
+      along with <b>3,600 annotation instructions</b> spanning three levels of specificity.
+      We also develop a <b>multidimensional evaluation framework</b> combining rule-based and LLM-judged metrics to
+      assess execution, structural compliance, semantic consistency, and design effectiveness.
+      Evaluating <b>10 representative MLLMs</b> reveals that proprietary models lead overall, though open-source
+      models narrow the gap. While higher instruction specificity improves annotation quality, inferring abstract
+      communicative intent remains difficult across all models. Providing chart images yields marginal benefit when
+      code is available. Further analyses uncover common failure modes, the impact of visual complexity, and the
+      validity of LLM-as-a-judge protocols. Experiments with <b>D3 and SVG</b> demonstrate the
+      <b>generalizability</b> of <b>ChartAnno</b> beyond its primary Python setting.
+    </p>
+  </section>
+
+  <!-- ===================== Benchmark ===================== -->
+  <section class="sec">
+    <h2>Benchmark</h2>
+    <figure class="fig">
+      <img src="assets/main-chart.png" alt="Task design of ChartAnno: three instruction levels (Intent, Operation, Implementation), two input settings (Code, Code + Image), model-generated code rendered into annotated charts, and multidimensional evaluation.">
+      <figcaption>
+        <b>Figure 2.</b> Task design of ChartAnno. The benchmark considers two primary input settings,
+        Code and Code + Image, and three instruction levels: Intent, Operation, and Implementation.
+        The MLLM produces generated code, which is rendered into the generated chart.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== Leaderboard ===================== -->
+  <section class="sec" id="leaderboard">
+    <h2>Leaderboard</h2>
+    <p class="sec-note">
+      Results of 10 MLLMs under three input settings across three instruction levels.
+      <b>Exec.</b>, <b>Struct.</b>, <b>Sem.</b>, and <b>Design</b> denote Execution Rate, Structural Compliance,
+      Semantic Consistency, and Design Effectiveness. Cell shading scales with the score within each column;
+      best results are <b>bold</b>. Click a column header to sort, and use the buttons above the table to
+      filter by model group.
+    </p>
+
+    <div class="tabs" role="tablist" aria-label="Input setting">
+      <button class="tab active" data-setting="code" role="tab" aria-selected="true">Code Input</button>
+      <button class="tab" data-setting="codeimage" role="tab" aria-selected="false">Code + Image Input</button>
+      <button class="tab" data-setting="image" role="tab" aria-selected="false">Image-only Input</button>
+      <span class="filters" role="group" aria-label="Model group filter">
+        <button class="fbtn active" data-filter="all">All</button>
+        <button class="fbtn" data-filter="prop">Proprietary</button>
+        <button class="fbtn" data-filter="open">Open-Source</button>
+      </span>
+    </div>
+
+    <div class="board-scroll">
+      <table class="board" id="board">
+        <caption class="sr-only">Main results of 10 MLLMs on ChartAnno under two input settings and three instruction levels</caption>
+        <thead>
+          <tr class="head-group">
+            <th rowspan="2" class="th-model sortable" data-col="0">Model</th>
+            <th colspan="4" class="grp grp-a">Intent-level</th>
+            <th colspan="4" class="grp grp-b">Operation-level</th>
+            <th colspan="4" class="grp grp-c">Implementation-level</th>
+          </tr>
+          <tr class="head-metrics">
+            <th class="grp grp-a sortable" data-col="1">Exec.</th><th class="grp grp-a sortable" data-col="2">Struct.<span class="fn">*</span></th><th class="grp grp-a sortable" data-col="3">Sem.</th><th class="grp grp-a sortable" data-col="4">Design</th>
+            <th class="grp grp-b sortable" data-col="5">Exec.</th><th class="grp grp-b sortable" data-col="6">Struct.</th><th class="grp grp-b sortable" data-col="7">Sem.</th><th class="grp grp-b sortable" data-col="8">Design</th>
+            <th class="grp grp-c sortable" data-col="9">Exec.</th><th class="grp grp-c sortable" data-col="10">Struct.</th><th class="grp grp-c sortable" data-col="11">Sem.</th><th class="grp grp-c sortable" data-col="12">Design</th>
+          </tr>
+        </thead>
+        <tbody id="board-body"><!-- rendered by app.js --></tbody>
+      </table>
+    </div>
+
+    <p class="foot-note">
+      <span class="fn">*</span>Struct. reports Chart Fidelity for Intent-level instructions.
+      Sem. and Design are judged on a 1–5 scale; Exec. and Struct. are scores in [0,&nbsp;1].
+      <span class="heat-legend" aria-hidden="true">
+        <span>low</span><i></i><i></i><i></i><i></i><i></i><i></i><span>high</span>
+      </span>
+    </p>
+  </section>
+
+  <!-- ===================== Citation ===================== -->
+  <section class="sec">
+    <h2>Citation</h2>
+    <div class="bibtex">
+      <button class="copy-btn" id="copy-bibtex" type="button"><span id="copy-bibtex-label">Copy</span></button>
+      <pre><code id="bibtex">@misc{chen2026chartannoevaluatingmllmschart,
+      title={ChartAnno: Evaluating MLLMs for Chart Annotation Generation},
+      author={Zhenghan Chen and Zekai Shao and Lidan Tan and Xin Lin and Xingchen Zeng and Yi Shan and Ziyue Lin and Xiaoliang Fu and Xinyuan Liu and Yuetong Guo and Fen Wang and Bongshin Lee and Siming Chen},
+      year={2026},
+      eprint={2608.03464},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.03464}
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ===================== Contact ===================== -->
+  <section class="sec">
+    <h2>Contact Us</h2>
+    <p>
+      If you have any questions about ChartAnno, feel free to reach out to us at
+      <a href="mailto:chenzh26@m.fudan.edu.cn">chenzh26@m.fudan.edu.cn</a>
+      or <a href="mailto:zkshao23@m.fudan.edu.cn">zkshao23@m.fudan.edu.cn</a>.
+    </p>
+  </section>
+
+  <footer class="foot">
+    <p class="brand">
+      <img src="assets/logo.png" alt="ChartAnno logo">
+      <img src="assets/chartanno_path.svg" alt="ChartAnno wordmark">
+    </p>
+    <p>© 2026 ChartAnno team</p>
+    <p class="credits">This website is built with reference to <a href="https://chartmimic.github.io/" target="_blank" rel="noopener">ChartMimic</a> and <a href="https://charxiv.github.io/" target="_blank" rel="noopener">CharXIV</a>.</p>
+  </footer>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
