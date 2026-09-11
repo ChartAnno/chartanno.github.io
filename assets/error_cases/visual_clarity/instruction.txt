@@ -1,0 +1,39 @@
+Implement the annotations by drawing vertical lines using color '#555555' and width 0.8. Place text titles in bold color '#1f497d' fontsize 10.5, and body text in color '#4e79a7' fontsize 9.
+1. At '2014-02-25', draw line up (height 15), center text. text block: '25 Feb 2014
+Stock continued to soar on
+year-over-year quarterly
+revenue growth of 95%'.
+2. At '2014-05-15', draw line down (height 15), right-align text. text block: 'May 2014
+Wall Street pessimistic
+ahead of the Q1 earnings call'.
+3. At '2015-07-22', draw line up (height 15), center text. text block: '22 Jul 2015
+Stock reaches all-time
+high of $128.74'.
+4. At '2015-08-06', draw line down (height 15), center text. text block: '6 Aug 2015
+Lost nearly $19M in Q2;
+stock plummets 23%'.
+5. At '2015-11-06', draw line up (height 10), left-align text. text block: '6 Nov 2015
+Shares jump nearly 20% as
+earnings easily beat estimates'.
+6. At '2016-02-08', draw line down (height 10), right-align text. text block: '8 Feb 2016
+1Q guidance came in well
+below targets; shares
+plunge over 50%'.
+7. At '2016-06-27', draw line down (height 20), center text. text block: '27 Jun 2016
+Stock drops 9.2%
+amid Brexit fears'.
+8. At '2016-08-15', draw line up (height 20), center text. text block: 'Aug 2016
+Subscription model begins
+paying off. Shares rose 12.5%,
+driven by impressive 2Q results'.
+9. At '2017-11-03', draw line down (height 15), center text. text block: '3 Nov 2017
+Reported revenue of
+$214.9M, missing the
+consensus estimate of
+$219M'.
+10. At '2018-07-23', draw line up (height 15), right-align text. text block: '23 Jul 2018
+Zen Master Andy Kriebel's
+45th birthday
+Stock takes a dive'.
+
+For the final price, add text '101.45' at the last data index with color '#f28e2b', bold weight, and fontsize 10. Add the source text 'SOURCE: Yahoo! Finance •••• DESIGNED BY: Andy Kriebel | @VizWizBI' using relative axes coordinates (0.5, -0.1) with horizontal alignment 'center', fontsize 8, and color '#999999'.

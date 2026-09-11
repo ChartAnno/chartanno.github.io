@@ -388,3 +388,166 @@ tabs.forEach((t) => {
 });
 updateSortHeaders();
 renderBoard(currentSetting);
+
+/* ============================================================
+   Error cases — metric-level failure showcase.
+   EC_CASES (from js/ec-data.js): per metric, four shots —
+   input (GT w/o anno), ground truth, high- and low-scored
+   model outputs for the same instruction.
+   ============================================================ */
+
+const EC_ASSET = "assets/error_cases/";
+const EC_SHOTS = [
+  { key: "input", label: "Ground Truth\nChart without Annotation", dot: "neutral" },
+  { key: "gt", label: "Ground Truth\nChart", dot: "gt" },
+  { key: "high", label: "High-score Output", dot: "high" },
+  { key: "low", label: "Low-score Output", dot: "low" },
+];
+
+let ecIndex = 0;
+let ecZoom = -1; /* index into EC_SHOTS while the viewer is open */
+
+function ecCurrent() {
+  return EC_CASES[ecIndex];
+}
+
+function ecRenderChips() {
+  const box = document.getElementById("ec-chips");
+  box.innerHTML = "";
+  let row = null;
+  let lastGroup = null;
+  EC_CASES.forEach((c, i) => {
+    if (c.group !== lastGroup) {
+      row = document.createElement("div");
+      row.className = "ec-chip-row";
+      const label = document.createElement("span");
+      label.className = "grp-label";
+      label.textContent = c.group;
+      row.appendChild(label);
+      box.appendChild(row);
+      lastGroup = c.group;
+    }
+    const chip = document.createElement("button");
+    chip.className = "ec-chip" + (i === ecIndex ? " active" : "");
+    chip.type = "button";
+    chip.setAttribute("role", "tab");
+    chip.setAttribute("aria-selected", String(i === ecIndex));
+    chip.textContent = c.name;
+    chip.addEventListener("click", () => {
+      ecIndex = i;
+      ecRenderChips();
+      ecRenderCase();
+    });
+    row.appendChild(chip);
+  });
+}
+
+function ecRenderCase() {
+  const c = ecCurrent();
+  document.getElementById("ec-name").textContent = c.name;
+  const setting = c.setting.replace("Input: ", "");
+  document.getElementById("ec-meta").innerHTML =
+    '<span class="ec-tag">Sample ID: ' + c.sample + "</span>" +
+    '<span class="ec-tag">Chart Input Setting: ' +
+    setting.charAt(0).toUpperCase() + setting.slice(1) + "</span>" +
+    '<span class="ec-tag">Instruction Level: ' + c.level + "</span>";
+  document.getElementById("ec-desc").innerHTML =
+    "<b>Definition</b>: " + c.metric + "<br><b>Case</b>: " + c.case;
+  document.getElementById("ec-instruction").textContent = c.instruction;
+
+  const strip = document.getElementById("ec-strip");
+  strip.innerHTML = "";
+  EC_SHOTS.forEach((shot, i) => {
+    const cell = document.createElement("figure");
+    cell.className = "ec-cell";
+
+    const btn = document.createElement("button");
+    btn.className = "shot";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "Enlarge " + shot.label);
+    const img = document.createElement("img");
+    img.src = EC_ASSET + c.key + "/" + shot.key + ".jpg";
+    img.alt = c.name + " — " + shot.label + " (" + c.sample + ")";
+    img.loading = "lazy";
+    btn.appendChild(img);
+    btn.addEventListener("click", () => ecOpenViewer(i));
+    cell.appendChild(btn);
+
+    const cap = document.createElement("figcaption");
+    const dot = document.createElement("span");
+    dot.className = "ec-dot " + shot.dot;
+    cap.appendChild(dot);
+    cap.appendChild(document.createTextNode(shot.label));
+    if (c[shot.key]) {
+      const sub = document.createElement("span");
+      sub.className = "ec-sub";
+      sub.textContent = c[shot.key].model + " · " + c[shot.key].score;
+      cap.appendChild(sub);
+    }
+    cell.appendChild(cap);
+
+    strip.appendChild(cell);
+  });
+
+  const prompt = document.querySelector(".ec-prompt");
+  if (prompt) prompt.open = false;
+}
+
+/* ---------- full-size viewer ---------- */
+
+function ecOpenViewer(shotIndex) {
+  ecZoom = shotIndex;
+  const lb = document.getElementById("ec-lightbox");
+  lb.hidden = false;
+  document.body.style.overflow = "hidden";
+  ecRenderViewer();
+}
+
+function ecCloseViewer() {
+  ecZoom = -1;
+  document.getElementById("ec-lightbox").hidden = true;
+  document.body.style.overflow = "";
+}
+
+function ecRenderViewer() {
+  const c = ecCurrent();
+  const shot = EC_SHOTS[ecZoom];
+  document.getElementById("ec-lb-img").src = EC_ASSET + c.key + "/" + shot.key + ".jpg";
+  document.getElementById("ec-lb-img").alt = c.name + " — " + shot.label + " (" + c.sample + ")";
+  let cap = c.name + " · " + shot.label;
+  if (c[shot.key]) cap += " — " + c[shot.key].model + " (" + c[shot.key].score + ")";
+  cap += " (" + (ecZoom + 1) + "/" + EC_SHOTS.length + ") — " + c.sample;
+  document.getElementById("ec-lb-cap").textContent = cap;
+}
+
+function ecStepViewer(delta) {
+  ecZoom = (ecZoom + delta + EC_SHOTS.length) % EC_SHOTS.length;
+  ecRenderViewer();
+}
+
+function ecStepCase(delta) {
+  ecIndex = (ecIndex + delta + EC_CASES.length) % EC_CASES.length;
+  ecRenderChips();
+  ecRenderCase();
+}
+
+document.getElementById("ec-lb-prev").addEventListener("click", () => ecStepViewer(-1));
+document.getElementById("ec-lb-next").addEventListener("click", () => ecStepViewer(1));
+document.getElementById("ec-lb-close").addEventListener("click", ecCloseViewer);
+document.getElementById("ec-lightbox").addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) ecCloseViewer();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (document.getElementById("ec-lightbox").hidden) {
+    if (e.key === "ArrowLeft") ecStepCase(-1);
+    if (e.key === "ArrowRight") ecStepCase(1);
+    return;
+  }
+  if (e.key === "Escape") ecCloseViewer();
+  if (e.key === "ArrowLeft") ecStepViewer(-1);
+  if (e.key === "ArrowRight") ecStepViewer(1);
+});
+
+ecRenderChips();
+ecRenderCase();

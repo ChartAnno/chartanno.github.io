@@ -1,0 +1,8 @@
+Set the bar color to '#F28E2B' for the four highlighted local authority areas Chiltern, Wycombe, South Bucks, and Aylesbury Vale, while leaving the remaining bars in the default teal series color. Use `ax.axvline` at x=100 with `color='#F28E2B'`, `linewidth=1.5`, and `linestyle='-'`. Add the text 'UK = 100' at x=101, y=0.01 relative to the x-axis transform using `fontsize=9` and `color='#555555'`. Use `ax.text` at (100, 14) to display the multiline string 'Labour productivity
+varies considerably
+across the Ox-Cam Arc,
+from 27% higher than the
+national average in
+Chiltern, to 33% below
+the national average in
+East Northhamptonshire' with `fontsize=10`, `color='#666666'`, and a bbox dict: `{'boxstyle': 'square,pad=1.5', 'fc': '#FFFAF0', 'ec': 'none', 'alpha': 0.7}`.
